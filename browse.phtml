@@ -1,0 +1,85 @@
+<?php $escape = $this->plugin('escapeHtml');?>
+<?php $this->htmlElement('body')->appendAttribute('class', 'item resource browse');
+$query = $this->params()->fromQuery(); ?>
+<?php if (isset($itemSet)): ?>
+<?php $this->htmlElement('body')->appendAttribute('class', 'item-set');
+    $query['item_set_id'] = $itemSet->id(); ?>
+<?php endif; ?>
+<div class="search-box-1" style="width:75%; float:left;">
+<?php if (isset($itemSet)): ?>
+    <?php echo $this->pageTitle($itemSet->displayTitle(), 2); ?>
+    <h3><?php echo $this->translate('Item Set'); ?></h3>
+    <div class="metadata">
+        <?php echo $itemSet->displayValues(); ?>
+    </div>
+    <?php echo $this->pageTitle($this->translate('Items'), 3); ?>
+<?php else: ?>
+    <?php echo $this->pageTitle($this->translate('Items'), 2); ?>
+<?php endif; ?>
+
+<?php echo $this->searchFilters(); ?>
+<?php echo $this->hyperlink($this->translate('Advanced search'), $this->url('site/resource', ['controller' => 'item', 'action' => 'search'], ['query' => $query], true), ['class' => 'advanced-search']); ?>
+<?php echo $this->pagination(); ?>
+<ul class="resource-list">
+    <?php foreach ($items as $item): ?>
+    <li class="item resource">
+		<?php $itemSetID = array_keys($item->itemSets());?>
+    	<?php if (in_array(1892, $itemSetID)): ?>
+			<?php $dept = $item->value('HERO_:DepartmentName');?>
+			<?php if (isset($dept)): ?>
+				<?php $deptItem = json_decode(file_get_contents("http://resources.5colldh.org/api/items/" . end(explode("/", $dept))), true);
+				$deptSet = $deptItem['o:item_set'][0]['o:id'];?>
+				<?php if ($deptSet == 1879): ?>
+     				<img src="http://resources.5colldh.org/files/classroom(3).svg" alt=""/>
+     			<?php elseif($deptSet == 1882) : ?>
+					<img src="http://resources.5colldh.org/files/classroom(2).svg" alt=""/>
+     			<?php elseif($deptSet == 1880) : ?>
+     				<img src="http://resources.5colldh.org/files/classroom(1).svg" alt=""/>
+     			<?php elseif($deptSet == 1881) : ?>
+     				<img src="http://resources.5colldh.org/files/classroom(5).svg" alt=""/>
+     			<?php elseif($deptSet == 1888) : ?>
+     				<img src="http://resources.5colldh.org/files/classroom(4).svg" alt=""/>
+     			<?php else: ?>
+         			<img src="http://resources.5colldh.org/files/classroom.svg" alt=""/>
+    			<?php endif; ?>
+    		<?php else: ?>
+     			<img src="http://resources.5colldh.org/files/classroom.svg" alt=""/>
+    		<?php endif; ?>
+    	<?php elseif($item->displayResourceClassLabel() == "Agent"): ?>
+    		<img src="http://resources.5colldh.org/files/Person.svg" alt=""/>
+    	<?php elseif(in_array(1893, $itemSetID)): ?>
+    		<img src="http://resources.5colldh.org/files/Gear.png" alt=""/>
+    	<?php elseif(in_array(1880, $itemSetID)): ?>
+    		<img src="http://resources.5colldh.org/files/books(1).svg" alt=""/>
+    	<?php elseif(in_array(1882, $itemSetID)): ?>
+    		<img src="http://resources.5colldh.org/files/books(2).svg" alt=""/>
+    	<?php elseif(in_array(1879, $itemSetID)): ?>
+    		<img src="http://resources.5colldh.org/files/books(3).svg" alt=""/>
+    	<?php elseif(in_array(1881, $itemSetID)): ?>
+    		<img src="http://resources.5colldh.org/files/books(4).svg" alt=""/>
+    	<?php elseif(in_array(1888, $itemSetID)): ?>
+    		<img src="http://resources.5colldh.org/files/books(5).svg" alt=""/>
+    	<?php elseif(in_array(1883, $itemSetID) or in_array(1887, $itemSetID)): ?>
+    		<img src="http://resources.5colldh.org/files/books(6).svg" alt=""/>
+		<?php endif; ?>
+        <?php if ($primaryMedia = $item->primaryMedia()): ?>
+        <?php echo $item->linkRaw($this->thumbnail($primaryMedia, 'medium')); ?>
+        <?php endif; ?>
+        <h4><?php echo $item->link($item->displayTitle()); ?></h4>
+        <?php if ($date = $item->value('dcterms:date')): ?>
+        <div class="date"><?php echo $date; ?></div>
+        <?php endif; ?>
+    </li>
+    <?php endforeach; ?>
+</ul>
+<?php echo $this->pagination(); ?>
+</div>
+<div class="search-box-2" style="float:left;margin-left:2%;width:23%;">
+	<h2>Hierarchical Browser</h2>
+	<p>Here is where content from the h-browser will go. It can even take in parameters like Item Set title if provided or search filter: 
+<?php 
+	preg_match_all("/>(.*)</", $this->searchFilters(), $matches);
+print_r($matches[1][1]); ?>
+	</p>
+</div>
+<?php $this->trigger('view.browse.after'); ?>
